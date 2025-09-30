@@ -1,4 +1,10 @@
 #import "YTLite.h"
+#import <YouTubeHeader/YTSearchableSettingsViewController.h>
+#import <YouTubeHeader/YTSettingsGroupData.h>
+#import <YouTubeHeader/YTSettingsPickerViewController.h>
+#import <YouTubeHeader/YTSettingsSectionItem.h>
+#import <YouTubeHeader/YTSettingsSectionItemManager.h>
+#import <YouTubeHeader/YTSettingsViewController.h>
 
 @interface YTSettingsSectionItemManager (YTLite)
 - (void)updateYTLiteSectionWithEntry:(id)entry;
@@ -22,6 +28,18 @@ static NSString *GetCacheSize() {
 
     return [formatter stringFromByteCount:folderSize];
 }
+
+%hook YTSettingsGroupData
+
+- (NSArray <NSNumber *> *)orderedCategories {
+    if (self.type != 1 || class_getClassMethod(objc_getClass("YTSettingsGroupData"), @selector(tweaks)))
+        return %orig;
+    NSMutableArray *mutableCategories = %orig.mutableCopy;
+    [mutableCategories insertObject:@(YTABCSection) atIndex:0];
+    return mutableCategories.copy;
+}
+
+%end
 
 // Settings
 %hook YTAppSettingsPresentationData
